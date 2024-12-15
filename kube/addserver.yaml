@@ -1,0 +1,13 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: addserver
+spec:
+  template:
+    spec:
+      containers:
+      - name: addserver
+        image: alpine/curl
+        command: ["curl",  "--header 'Content-Type: application/json'", "--request POST", "--data '{'address':'fileserver/download.php'}' http://video-server-router:8888/get-video-address.php"]
+      restartPolicy: Never
+  backoffLimit: 4

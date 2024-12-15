@@ -1,0 +1,116 @@
+services:
+  nginx:
+      build:
+        context: .
+        dockerfile: ./Load-Balancer/Dockerfile.yaml
+      image: nginx:1.25.3-alpine
+      container_name: nginx-container
+      ports:
+       - 8080:80
+      volumes:
+       - ./Load-Balancer/default.conf:/etc/nginx/conf.d/default.conf
+       - ./Client/:/var/www/html
+       #- ./Content-Delivery-Network-Master/:/var/www/html
+      restart: unless-stopped
+      depends_on:
+        - app
+        #- fileserver
+  nginx-fileserver:
+      image: nginx:1.25.3-alpine
+      container_name: nginx-fileserver
+      environment:
+        # all of these are optional
+      - BASEPATH=/
+      - BASIC_AUTH_ENABLED=false 
+      - BASIC_AUTH_REALM=admin 
+      - BASIC_AUTH_USER=admin 
+      - BASIC_AUTH_PASSWORD=fileserver
+      ports:
+       - 8088:808
+      volumes:
+       - ./Content-Delivery-Network-Master/default.conf:/etc/nginx/conf.d/default.conf
+       - ./Content-Delivery-Network-Master/php.ini-development:/usr/local/etc/php/php.ini
+       #- ./Client/:/var/www/html
+       - ./Content-Delivery-Network-Master/:/var/www/html
+      restart: unless-stopped
+      depends_on:
+        #- app
+        - fileserver 
+  db:
+    build:
+      context: .
+      dockerfile: ./Database/Dockerfile.yaml
+    image: mysql-test
+    restart: unless-stopped
+    ports:
+      - 3306:3306
+  app:
+    build:
+      context: .
+      dockerfile: ./Client/Dockerfile.yaml
+    image: php-test
+    restart: unless-stopped
+    #ports:
+     # - 8000:8000
+    volumes:
+      - ./Client/:/var/www/html
+  fileserver:
+    build:
+      context: .
+      dockerfile: ./Content-Delivery-Network-Master/Dockerfile.yaml
+    image: fileserver-test
+    container_name: fileserver
+    environment:
+        # all of these are optional
+      - BASEPATH=/
+      - BASIC_AUTH_ENABLED=false 
+      - BASIC_AUTH_REALM=admin 
+      - BASIC_AUTH_USER=admin 
+      - BASIC_AUTH_PASSWORD=fileserver 
+    volumes:
+      - /path/to/files:/public
+      - ./Content-Delivery-Network-Master/:/var/www/html
+    depends_on:
+      - Video-Server-Router
+    #ports:
+     # - 80:8887
+    command: 
+      #- " ./Content-Delivery-Network-Master/register.sh"
+    restart: unless-stopped
+  Video-Server-Router:
+    build:
+      context: . 
+      dockerfile: ./Video-Server-Router/Dockerfile.yaml
+    image: video-router-endpoint
+    container_name: video-server-router
+    ports:
+      - 8888:8888
+    restart: unless-stopped
+  REST-Video:
+    build:
+      context: . 
+      dockerfile: ./REST-Video/Dockerfile.yaml
+    image: rest-endpoints-blockb2video
+    container_name: REST-Video
+    ports:
+      - 8887:8887
+    restart: unless-stopped
+  REST-User:
+    build:
+      context: . 
+      dockerfile: ./REST-User/Dockerfile.yaml
+    image: rest-endpoints-blockb2user
+    container_name: REST-User
+    ports:
+      - 8886:8886
+    restart: unless-stopped
+  REST-Comment:
+    build:
+      context: . 
+      dockerfile: ./REST-Comment/Dockerfile.yaml
+    image: rest-endpoints-blockb2comment
+    container_name: REST-Comment
+    ports:
+      - 8885:8885
+    restart: unless-stopped
+

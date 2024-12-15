@@ -1,0 +1,20 @@
+FROM php:8.2-fpm
+
+# Move our PHP file into the container
+COPY ./Client/index.php /usr/src/app/index.php
+COPY ./Client/watch.php /usr/src/app/watch.php
+
+# Make things easier if you shell in
+WORKDIR /usr/share/app
+
+# Our PHP will be running on port 8000
+EXPOSE 9000
+
+# Install the PDO MySQL extension so we can database
+# RUN docker-php-ext-install pdo_mysql
+
+#RUN mkdir /usr/share/app/movies
+
+# Set up a web server
+#CMD ["php", "-S", "0.0.0.0:8000"]
+#MD ["php", "./index.php"]

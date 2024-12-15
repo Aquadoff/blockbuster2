@@ -1,0 +1,27 @@
+FROM php:8.2-fpm
+
+# RUN apt update && apt -y install \
+#   intstall libnginx-mod-http-lua \
+#   && \
+#   apt clean all
+
+#COPY ./Content-Delivery-Network-Master/nginx.conf /etc/nginx/nginx.conf
+WORKDIR /usr/src/app
+
+# Install the PDO MySQL extension so we can database
+#RUN docker-php-ext-install pdo_mysql
+RUN mkdir /usr/share/movies
+WORKDIR /usr/share/movies
+
+COPY ./Content-Delivery-Network-Master/php.ini-development /usr/local/etc/php/php.ini
+COPY ./Content-Delivery-Network-Master/download.php /usr/src/app/download.php
+COPY ./Content-Delivery-Network-Master/upload.php /usr/src/app/upload.php
+COPY ./Content-Delivery-Network-Master/register.sh /usr/src/app/register.sh
+
+
+# Set up a web server
+#CMD ["php", "-S", "0.0.0.0:80"]
+#CMD "./register.sh" 
+EXPOSE 9000
+
+#RUN curl --header "Content-Type: application/json" --request POST --data '{"address":"127.0.0.1/download.php"}' http://127.0.0.1:8888/get-video-address.php

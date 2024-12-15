@@ -1,0 +1,20 @@
+FROM php:8.2-cli
+
+# Move our PHP file into the container
+COPY ./REST-Video/REST-Video.php /usr/src/app/REST-Video.php
+
+# Make things easier if you shell in
+WORKDIR /usr/src/app
+
+# Our PHP will be running on port 8000
+EXPOSE 8887
+
+# Install the PDO MySQL extension so we can database
+RUN docker-php-ext-install pdo_mysql
+RUN touch servers.txt
+#RUN mkdir /usr/share/movies
+
+# Set up a web server
+CMD ["php", "-S", "0.0.0.0:8887"]
+
+#RUN curl --header "Content-Type: application/json" --request POST --data '{"address":"nginx-fileserver:8088/download.php"}' http://video-server-router:8888/get-video-address.php

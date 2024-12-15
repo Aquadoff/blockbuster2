@@ -1,0 +1,6 @@
+FROM nginx:1.25.3-alpine
+
+WORKDIR /var/www
+
+#RUN mkdir /usr/share/movies
+#WORKDIR /usr/share/movies
